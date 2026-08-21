@@ -1,8 +1,21 @@
 {
-  "_comentario": "LAYOUT AINDA NAO CALIBRADO (bootstrap). O formulario LPT tem OUTRAS perguntas que o UTD, entao o layout.json do repo irmao NAO serve — e o CSV do GPM nao tem schema fixo (uma coluna por PERGUNTA, e so as perguntas presentes nos registros filtrados). Enquanto \"colunas\" estiver vazio, o robo diario e o backfill sobem o export COMO VEIO (sem reprojetar) e avisam no log. Depois do primeiro export real e do backfill, rode `npm run gerar-layout` (le todos os CSVs da pasta e monta a uniao das colunas), confira o resultado e commite. A partir dai todo arquivo da pasta passa a ter o MESMO cabecalho, que e o que a plataforma que consome a pasta exige.",
-  "geradoEm": null,
-  "baseCanonica": null,
-  "canonicas": 0,
+  "_comentario": "Layout canonico da base. As 12 primeiras colunas sao o export atual do GPM (base: 08.2026.csv); as 0 ultimas sao perguntas aposentadas do formulario, mantidas no fim pra nao perder as respostas historicas. Robo diario, backfill e padronizador usam este arquivo. Se o GPM ganhar pergunta nova, ela e ANEXADA no fim e o run avisa.",
+  "geradoEm": "2026-08-21",
+  "baseCanonica": "08.2026.csv",
+  "canonicas": 12,
   "aposentadas": 0,
-  "colunas": []
+  "colunas": [
+    "Contrato",
+    "Ordem trabalho",
+    "Ordem trabalho Principal",
+    "cod_checklist",
+    "Cliente",
+    "Funcionario",
+    "Data Execução",
+    "formulario",
+    "Nº PROJETO",
+    "NOME PROJETO",
+    "MUNICÍPIO PROJETO",
+    "1 - Verificar se a área necessita de alguma licença ou autorização não fornecida pelo projetista:"
+  ]
 }

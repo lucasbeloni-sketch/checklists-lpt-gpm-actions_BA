@@ -279,9 +279,31 @@ inofensivo (substitui pelo mesmo conteúdo).
 
 ## Estado
 
-- Repo criado a partir do gêmeo UTD em 21/08/2026. `layout.json` vazio
-  (bootstrap), pasta do Drive vazia, carga inicial pendente.
-- Acesso da service account à pasta `Checklists_LPT` **validado**
-  (`npm run check`).
-- `BD_Config!B10` já traz o nome do robô; `C10` é carimbado no primeiro run OK.
-- 82 testes unitários passando (`npm test`).
+Carga inicial **concluída em 21/08/2026**.
+
+| | |
+|---|---|
+| Arquivos na pasta | 27 (`mm.aaaa.csv`, 2023–2026) |
+| Linhas | 469 |
+| Colunas | **12 em todos os arquivos** |
+| `layout.json` | gerado, 12 canônicas, **0 aposentadas** |
+
+O formulário LPT **nunca mudou** no período: os 27 exports vieram com o mesmo
+cabeçalho, então não há pergunta aposentada e a pasta já nasceu homogênea —
+`npm run padronizar` não teria o que reescrever. Nada a ver com o UTD, que tem 90
+colunas e 12 perguntas aposentadas. (O mecanismo continua valendo: se o GPM
+mudar o formulário, a coluna nova é anexada no fim e o run avisa.)
+
+As 12 colunas: as 8 fixas do relatório (`Contrato`, `Ordem trabalho`,
+`Ordem trabalho Principal`, `cod_checklist`, `Cliente`, `Funcionario`,
+`Data Execução`, `formulario`) + `Nº PROJETO`, `NOME PROJETO`,
+`MUNICÍPIO PROJETO` e uma pergunta (licença/autorização não fornecida pelo
+projetista).
+
+Meses sem nenhuma LPT (saíram `vazio`, sem arquivo): 01–07/2023, 08–12/2025 e
+01–05/2026.
+
+- Robô diário validado fim-a-fim (run 32522281166): `08.2026.csv` no Drive +
+  carimbo em `BD_Config!C10`.
+- `npm run auditar`: 27/27 estruturalmente íntegros.
+- 82 testes unitários passando.
