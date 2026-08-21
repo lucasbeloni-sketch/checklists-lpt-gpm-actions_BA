@@ -17,6 +17,7 @@
     "analisar": "node tools/analisar-padronizacao.js",
     "meses": "node tools/meses-bootstrap.js",
     "gerar-layout": "node tools/gerar-layout.js",
+    "consolidar": "node tools/consolidar-ano.js",
     "padronizar": "node tools/padronizar-pasta.js",
     "carimbar": "node tools/carimbar.js"
   },

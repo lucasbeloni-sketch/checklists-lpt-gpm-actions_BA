@@ -223,9 +223,8 @@ rode o primeiro com `dry_run` marcado. Dispare **um lote de cada vez**: a
 `concurrency` do GitHub só guarda *um* run na fila, então enfileirar um terceiro
 cancela o que estava esperando.
 
-O resultado é um arquivo por mês em todos os anos. Consolidar os meses de um ano
-fechado num único `aaaa.csv` é decisão manual, como no gêmeo — `npm run auditar` e
-`npm run analisar` ajudam a conferir antes.
+O resultado é um arquivo por mês em todos os anos; `npm run consolidar` (abaixo)
+junta cada ano fechado depois.
 
 Meses sem nenhuma LPT saem como `vazio` no manifesto, sem erro, e não geram
 arquivo.
@@ -238,6 +237,7 @@ arquivo.
 | `npm run auditar` | confere alinhamento estrutural de todos os CSVs (só lê o Drive) |
 | `npm run analisar` | mostra o custo de conformar ao layout: perguntas fora e respostas em jogo |
 | `npm run padronizar` | reprojeta a pasta no layout (aceita `DRY_RUN=1`) |
+| `npm run consolidar` | junta os `mm.aaaa.csv` de cada ano **fechado** num `aaaa.csv` |
 | `npm run conferir` | reexporta um mês do GPM e compara célula a célula com o arquivo da pasta |
 | `npm run diag` | exporta várias combinações de filtro e loga payload/resposta (`LOG_REDE=1`) |
 
@@ -285,20 +285,59 @@ então um dia pode continuar listado mesmo depois de recuperado, se as linhas
 trazidas tiverem execução em outra data. Rodar o backfill nele de novo é
 inofensivo (substitui pelo mesmo conteúdo).
 
+## Consolidação dos anos fechados
+
+Convenção da base, igual à do gêmeo: **ano fechado = 1 arquivo por ano, ano
+corrente = 1 arquivo por mês**. O robô diário só escreve o mês corrente, então
+consolidar um ano passado não briga com ele.
+
+```bash
+GOOGLE_CREDENTIALS="$(cat credentials.json)" DRY_RUN=1 npm run consolidar   # ensaio
+GOOGLE_CREDENTIALS="$(cat credentials.json)" npm run consolidar             # todos os fechados
+ANOS=2023,2024 npm run consolidar        # só esses
+MANTER_MENSAIS=1 npm run consolidar      # gera o anual e não mexe nos mensais
+```
+
+Guardas (`tools/consolidar-ano.js`):
+
+- **Recusa o ano corrente** — o mês em andamento ainda vai receber escrita.
+- Junção por **nome de coluna**, nunca posição; cada parte é reprojetada no
+  layout antes, e coluna fora do layout **aborta** (sinal de que o
+  `gerar-layout` está desatualizado).
+- **Portão de preservação**: a contagem de células preenchidas por coluna do
+  consolidado tem que bater com a soma das partes. Qualquer diferença aborta
+  antes de gravar qualquer coisa.
+- Dedup por `cod_checklist` (o filtro do GPM é por Data Serviço/Inspeção, então
+  a mesma linha pode aparecer em dois meses).
+- Se o `aaaa.csv` já existir, ele entra na junção como mais uma parte — nunca é
+  sobrescrito às cegas.
+- Os mensais só vão pra **lixeira** (reversível, 30 dias) **depois** de o anual
+  subir com sucesso.
+
+Depois de consolidar, um backfill que caia num ano já fechado usa a estratégia de
+**merge por dia** (destino `aaaa.csv`), com guarda de cabeçalho.
+
 ## Estado
 
-Carga inicial **concluída em 21/08/2026**.
+Carga inicial e consolidação **concluídas em 21/08/2026**.
+
+| Arquivo | Linhas |
+|---|---|
+| `2023.csv` | 208 |
+| `2024.csv` | 114 |
+| `2025.csv` | 71 |
+| `06`, `07`, `08.2026.csv` | 76 |
+| **total** | **469** — 469 `cod_checklist` únicos, zero repetido |
 
 | | |
 |---|---|
-| Arquivos na pasta | 27 (`mm.aaaa.csv`, 2023–2026) |
-| Linhas | 469 |
 | Colunas | **12 em todos os arquivos** |
-| `layout.json` | gerado, 12 canônicas, **0 aposentadas** |
+| `layout.json` | 12 canônicas, **0 aposentadas** |
+| `npm run auditar` | 6/6 estruturalmente íntegros |
 
 O formulário LPT **nunca mudou** no período: os 27 exports vieram com o mesmo
 cabeçalho, então não há pergunta aposentada e a pasta já nasceu homogênea —
-`npm run padronizar` não teria o que reescrever. Nada a ver com o UTD, que tem 90
+`npm run padronizar` não teve o que reescrever. Nada a ver com o UTD, que tem 90
 colunas e 12 perguntas aposentadas. (O mecanismo continua valendo: se o GPM
 mudar o formulário, a coluna nova é anexada no fim e o run avisa.)
 
@@ -308,10 +347,10 @@ As 12 colunas: as 8 fixas do relatório (`Contrato`, `Ordem trabalho`,
 `MUNICÍPIO PROJETO` e uma pergunta (licença/autorização não fornecida pelo
 projetista).
 
-Meses sem nenhuma LPT (saíram `vazio`, sem arquivo): 01–07/2023, 08–12/2025 e
-01–05/2026.
+**Meses sem nenhuma LPT** (o GPM respondeu "nenhum registro"; não geraram
+arquivo): 01–07/2023, 08–12/2025 e 01–05/2026. É o dado que é assim — a LPT só
+aparece a partir de 08/2023, some no segundo semestre de 2025 e volta em 06/2026.
 
 - Robô diário validado fim-a-fim (run 32522281166): `08.2026.csv` no Drive +
   carimbo em `BD_Config!C10`.
-- `npm run auditar`: 27/27 estruturalmente íntegros.
 - 82 testes unitários passando.
