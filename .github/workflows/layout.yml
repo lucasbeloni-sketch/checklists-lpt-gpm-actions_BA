@@ -1,0 +1,73 @@
+name: Gerar layout.json (manual)
+
+# Roda tools/gerar-layout.js: le TODOS os CSVs da pasta Checklists_LPT no Drive e
+# monta o layout canonico (cabecalho do mm.aaaa.csv mais recente + perguntas
+# aposentadas que so aparecem nos arquivos antigos). Nao toca no GPM.
+#
+# Este repo NASCE com layout.json vazio de proposito: o formulario LPT tem outras
+# perguntas que o UTD, e o export do GPM traz uma coluna por pergunta PRESENTE no
+# periodo filtrado — nao ha como saber o layout completo antes de ter a base.
+# Ordem certa: robo/backfill enchem a pasta -> este workflow -> "npm run
+# padronizar" pra conformar a pasta ao layout gerado.
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "So mostra o layout que seria gerado (nao commita)"
+        type: boolean
+        default: true
+
+permissions:
+  contents: write          # commita o layout.json gerado
+
+concurrency:
+  group: checklists-lpt-ba
+  cancel-in-progress: false
+
+jobs:
+  layout:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "20"
+
+      - name: Install deps
+        run: npm ci || npm install
+
+      - name: Gera layout
+        run: npm run gerar-layout 2>&1 | tee layout.log
+        env:
+          GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
+          DRY_RUN: ${{ inputs.dry_run && '1' || '' }}
+
+      - name: Testes unitarios (valida o layout gerado)
+        if: ${{ !inputs.dry_run }}
+        run: npm test
+
+      - name: Commita layout.json
+        if: ${{ !inputs.dry_run }}
+        run: |
+          if git diff --quiet -- layout.json; then
+            echo "layout.json nao mudou; nada a commitar."
+            exit 0
+          fi
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add layout.json
+          git commit -m "chore: regenera layout.json a partir da pasta do Drive"
+          git push
+
+      - name: Upload log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: layout
+          path: |
+            layout.log
+            layout.json
+          if-no-files-found: ignore
+          retention-days: 14

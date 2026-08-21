@@ -1,0 +1,8 @@
+{
+  "_comentario": "LAYOUT AINDA NAO CALIBRADO (bootstrap). O formulario LPT tem OUTRAS perguntas que o UTD, entao o layout.json do repo irmao NAO serve — e o CSV do GPM nao tem schema fixo (uma coluna por PERGUNTA, e so as perguntas presentes nos registros filtrados). Enquanto \"colunas\" estiver vazio, o robo diario e o backfill sobem o export COMO VEIO (sem reprojetar) e avisam no log. Depois do primeiro export real e do backfill, rode `npm run gerar-layout` (le todos os CSVs da pasta e monta a uniao das colunas), confira o resultado e commite. A partir dai todo arquivo da pasta passa a ter o MESMO cabecalho, que e o que a plataforma que consome a pasta exige.",
+  "geradoEm": null,
+  "baseCanonica": null,
+  "canonicas": 0,
+  "aposentadas": 0,
+  "colunas": []
+}

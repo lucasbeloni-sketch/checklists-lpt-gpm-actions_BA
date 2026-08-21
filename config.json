@@ -1,0 +1,54 @@
+{
+  "_comentario_unidade": "ATENCAO: esta e a unidade BA (sirtecba), diferente das Skills/repos irmaos de CE (sirtecce). Credenciais podem ser outras: o codigo usa GPM_BA_USER/GPM_BA_PASS e cai pra GPM_USER/GPM_PASS se as BA nao existirem.",
+  "baseUrl": "https://sirtecba.gpm.srv.br/",
+
+  "_comentario_url": "CALIBRADO no menu real (2026-08-10, via npm run inspect): Seguranca > Checklists > Exportacoes > Checklists Pergunta/Resposta = codigo de tela GR669, aberto pelo shell via abrirTela(). goto direto pode vir SEM o shell/iframe; o codigo trata os dois casos. NAO confundir com /ci/Seguranca/ExportacaoChecklist (GR674) nem ExportacaoChecklistNIS (GR688), que sao outras telas.",
+  "checklistsUrl": "https://sirtecba.gpm.srv.br/ci/Seguranca/ChecklistPerguntaResposta",
+
+  "_comentario_tela": "Codigo da tela no menu do GPM. O robo abre a tela chamando a propria funcao do shell — abrirTela(checklistsUrl, 0, telaCodigo, titulo) — em vez de dar goto na URL: o goto funciona na primeira vez, mas depois de um export vazio devolve a pagina crua sem iframe e a tela nao carrega (derrubou 25 de 26 dias no run 31484229093).",
+  "telaCodigo": "GR669",
+
+  "_comentario_destino": "Pasta Checklists_LPT em G:\\Drives compartilhados\\PCP\\Time CCM - BA\\Controle\\Arquivos. A service account precisa de acesso EDITOR nela (Shared Drive do BA, diferente do CE).",
+  "destFolderId": "1Wk6-OlJUV9u7ZVtRkAmat5gyJySkz9zN",
+  "timezone": "America/Sao_Paulo",
+
+  "_comentario_timestamp": "Carimbo de 'ultima execucao' gravado no FIM do run (src/timestamp.js) via Sheets API. A service account precisa de acesso EDITOR nesta planilha — e um escopo diferente do Drive (spreadsheets). Falha ao carimbar nao derruba o run: o CSV ja foi pro Drive antes.",
+  "timestamp": {
+    "spreadsheetId": "1-_lTKT4wSDlJtTXkF1tLHstV9h-S3Yq_2cE8jOIC3kI",
+    "aba": "BD_Config",
+    "celula": "C10"
+  },
+
+  "zipPattern": "Checklists PerguntaResposta",
+  "minLinhasDados": 1,
+
+  "_comentario_filtros": "Combinacao fixa da rotina (nunca muda). As 4 datas sao calculadas em runtime, ancoradas em ontem (D-1): inicio = dia 1 do mes de ontem, fim = ontem. Os DOIS pares (Data Servico e Data Inspecao) recebem o MESMO par de datas.",
+  "finalidade": "10 - Vistoria de Obras Elétricas",
+  "tipoChecklist": "LPT - Visita Prévia-BA",
+
+  "_comentario_busca": "Os dropdowns sao Choices.js com filtro fuzzy: digitar a string inteira NAO acha (o filtro descarta). Digitamos so este token curto, clicamos no item de texto EXATO e confirmamos pelo <select> nativo. O token precisa ser DISCRIMINANTE: existem 5 tipos contendo 'Visita Previa' (LPT, Manutencao, Poda Manut., UTD e 'Visita Previa (Concluidas)') — o token 'Visita Pr' casa com varios. 'LPT - Visita' e discriminante: o unico outro tipo com 'LPT' e 'Validacao- Clientes - LPT', que nao contem 'LPT - Visita'.",
+  "finalidadeSearch": "Vistoria de Obras",
+  "tipoChecklistSearch": "LPT - Visita",
+
+  "_comentario_horas": "CALIBRADO no DOM (2026-08-10): os 4 campos sao flatpickr com enableTime e altInput. O form submete os inputs HIDDEN (#data_inicial etc) em Y-m-d H:i; o input visivel e o altInput em d/m/Y H:i. Os data-options do proprio GPM usam defaultHour 00:00 nos campos de inicio (classe dta-zero) e 23:59 nos de fim (classe dta-fim) — o robo seta esses horarios EXPLICITAMENTE, senao um fim as 00:00 cortaria o ultimo dia inteiro do intervalo.",
+  "horaInicio": "00:00",
+  "horaFim": "23:59",
+
+  "_comentario_export": "A tela exporta clicando no botao verde 'Exportar', que baixa um zip 'Checklists PerguntaResposta_<user>_<data>.zip' com 1 CSV dentro. Sem Pesquisar antes: Exportar e a acao direta. Se nao houver dados, os campos resetam e aparece toast laranja 'Nenhum registro encontrado' (mes vazio = skip, nao falha).",
+  "exportButtonText": "Exportar",
+  "toastVazio": "Nenhum registro encontrado",
+
+  "_comentario_selectors": "CALIBRADO no DOM real (2026-08-10, npm run inspect). A tela vem DENTRO do iframe #frameTelasGPM. Os 4 seletores de data apontam para os inputs HIDDEN originais do flatpickr (que tem id e sao os que o form submete) — nao para os altInputs visiveis, que nao tem id e repetem o mesmo placeholder. Finalidade/Tipo sao <select> escondidos atras de widgets Choices.js. O botao Exportar nao tem id: casamos btn-success + texto.",
+  "selectors": {
+    "loginUser": "#idLogin",
+    "loginPass": "#idSenha",
+    "loginSubmit": "button:has-text('Entrar')",
+    "dataServicoInicio": "#data_inicial",
+    "dataServicoFim": "#data_final",
+    "dataInspecaoInicio": "#data_insp_in",
+    "dataInspecaoFim": "#data_insp_out",
+    "finalidade": "#finalidade",
+    "tipoChecklist": "#tipos",
+    "exportar": "button.btn-success:has-text('Exportar')"
+  }
+}
