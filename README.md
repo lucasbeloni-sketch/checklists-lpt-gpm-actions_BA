@@ -179,48 +179,56 @@ diferença.
 (`ATENCAO: coluna(s) nova(s)`). Nada é descartado em silêncio; aí regenere o
 layout pra pasta voltar a ser homogênea.
 
-### `layout.json` nasce VAZIO neste repo — de propósito
+### Como o layout foi calibrado (e o que fazer se precisar refazer)
 
-O formulário LPT tem outras perguntas que o UTD, então o layout do gêmeo não
-serve. E não há como saber o layout completo antes de ter a base: um único export
+O repo **nasceu com `layout.json` vazio**, de propósito: o formulário LPT tem
+outras perguntas que o UTD, então o layout do gêmeo não servia, e um único export
 só revela as perguntas daquele período.
 
-Enquanto `layout.colunas` estiver vazio, o robô diário e o backfill sobem o
-**export como veio** e avisam no log. A ordem correta é:
+Enquanto `layout.colunas` está vazio, o robô diário e o backfill sobem o **export
+como veio** e avisam no log; `npm run padronizar` recusa rodar (sem alvo não há o
+que padronizar). A sequência que foi executada em 21/08/2026:
 
-1. **carga inicial** (abaixo) enche a pasta com um `mm.aaaa.csv` por mês;
-2. `npm run gerar-layout` (ou o workflow **Gerar layout.json**) monta o layout
-   pela união das colunas: canônicas = cabeçalho do mensal mais recente,
-   aposentadas = as que só existem nos arquivos antigos **e têm resposta**;
-3. confira o diff e commite;
-4. `npm run padronizar` conforma os arquivos que já estão na pasta.
+1. carga inicial encheu a pasta com um `mm.aaaa.csv` por mês;
+2. `npm run gerar-layout` montou o layout pela união das colunas: canônicas =
+   cabeçalho do mensal mais recente, aposentadas = as que só existem nos arquivos
+   antigos **e têm resposta**;
+3. conferido e commitado (`bc0343f`);
+4. `npm run padronizar` — nada a reescrever, todos os arquivos já tinham as
+   mesmas 12 colunas.
 
-`npm run padronizar` recusa rodar com layout vazio — sem alvo não há o que
-padronizar.
+Para refazer (ex.: o GPM mudou o formulário e você quer o layout novo), é o mesmo
+caminho: `npm run gerar-layout` ou o workflow **Gerar layout.json**, que commita
+o resultado sozinho.
 
-## Carga inicial da base
+## Carga inicial da base — feita em 21/08/2026
+
+Registro de como foi, caso precise repetir em outra pasta/tipo.
 
 A pasta nasce vazia, então `npm run faltantes` não acha buraco nenhum (ele
-compara com o que já existe). A carga é **um export por mês**, via workflow
+compara com o que já existe). A carga é **um export por mês**, pelo workflow
 **Backfill dias perdidos**:
 
 ```bash
-npm run meses                          # 01/2023 até o mês passado (43 meses hoje)
+npm run meses                          # 01/2023 até o mês passado
 DE=2023-01 ATE=2023-12 npm run meses   # um lote
 ```
 
-Cole a saída no input `dias` do workflow. **Cada item é o último dia do mês**, e
-não é detalhe: na estratégia de mês inteiro o backfill exporta de `01/mm` até o
-dia que você passar — `15/03/2023` traria só a primeira metade de março.
+Cole a saída no input `dias`. **Cada item é o último dia do mês**, e não é
+detalhe: na estratégia de mês inteiro o backfill exporta de `01/mm` até o dia que
+você passar — `15/03/2023` traria só a primeira metade de março.
 
-Vá em **lotes de ~12 meses**: cada mês é um export no GPM e o run tem timeout de
-120 min. Rode o primeiro lote com `dry_run` marcado.
+Vá em **lotes de ~12 meses** (timeout de 120 min, cada mês é um export no GPM), e
+rode o primeiro com `dry_run` marcado. Dispare **um lote de cada vez**: a
+`concurrency` do GitHub só guarda *um* run na fila, então enfileirar um terceiro
+cancela o que estava esperando.
 
-O resultado é um arquivo por mês (`mm.aaaa.csv`) em todos os anos. Consolidar os
-meses de um ano fechado num único `aaaa.csv` é decisão manual, como no gêmeo —
-`npm run auditar` e `npm run analisar` ajudam a conferir antes.
+O resultado é um arquivo por mês em todos os anos. Consolidar os meses de um ano
+fechado num único `aaaa.csv` é decisão manual, como no gêmeo — `npm run auditar` e
+`npm run analisar` ajudam a conferir antes.
 
-Meses sem nenhuma LPT saem como `vazio` no manifesto, sem erro.
+Meses sem nenhuma LPT saem como `vazio` no manifesto, sem erro, e não geram
+arquivo.
 
 ### Ferramentas de base
 
