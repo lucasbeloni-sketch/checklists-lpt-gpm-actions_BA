@@ -86,18 +86,33 @@ for (const [id, ph] of CAMPOS) {
 
 // --- Choices.js stub ---
 const OPCOES_FINALIDADE = [
-  ["1", "1 - Veicular - turno"], ["2", "2 - Veicular - Fim de turno"],
-  ["10", "10 - Vistoria de Obras Elétricas"],
+  ["1", "1 - Veicular - turno"], ["2", "2 - Veicular - Frota"],
+  ["3", "3 - Seguranca - turno"], ["4", "4 - Servico - APR"],
+  ["5", "5 - Auditoria"], ["6", "6 - Inspeção de Segurança"],
+  ["7", "7 - Inspeção de Qualidade"], ["8", "8 - Diagnostico servico"],
+  ["9", "9 - Atendimento ao Cliente"], ["10", "10 - Vistoria de Obras Elétricas"],
+  ["11", "11 - Vistoria de Obras Civil"], ["12", "12 - Pesquisa de Satisfação"],
+  ["13", "13 - Atestado de Obra"], ["14", "14 - Turno - Fechamento"],
+  ["15", "15 - Checklist Cadastramento"], ["16", "16 - Ativo - TI"],
+  ["17", "17 - Rede IP"], ["18", "18 - Frota - Máquinas"],
+  ["19", "19 - Licitações"], ["20", "20 - Feedback Estruturado"],
+  ["21", "21 - Permissão de Trabalho"], ["23", "23 - Entrevistas Funcionários"],
+  ["24", "24 - ATAS"], ["25", "25 - Checklist Geral"],
 ];
-// Lista REAL capturada no GPM (run 31422888135). Cinco opcoes contem
-// "Visita Prévia" — casar por substring/Enter pega o primeiro item filtrado, que
-// nem sempre e o alvo. Aqui o alvo e a LPT (value 69).
+// Listas REAIS do GPM BA, recapturadas por "npm run tipos" em 16/09/2026
+// (24 finalidades, 9 tipos sob a Finalidade 10). Os VALUES anteriores estavam
+// errados — o texto batia, mas os numeros eram outros: a UTD e 29, nao 7, e o
+// CCM e 233, nao 61. Nada disso quebrava producao, porque o robo casa por TEXTO
+// exato; mas o teste afirmava um numero falso.
+//
+// Cinco opcoes contem "Visita Prévia" — casar por substring, ou dar Enter no
+// primeiro item filtrado, pega a errada.
 const OPCOES_TIPOS = [
-  ["61", "CCM - AS-BUILT - BA"], ["69", "LPT - Visita Prévia-BA"],
-  ["70", "Manutenção - Visita Prévia-BA"], ["71", "Oportunidades de Campo"],
-  ["72", "Poda Manut. - Visita Prévia-BA"], ["7", "UTD - Visita Prévia-BA"],
-  ["73", "Validação- Clientes - LPT"], ["74", "Visita Prévia (Concluídas)"],
-  ["75", "Vistoria Prévia - RS"],
+  ["233", "CCM - AS-BUILT - BA"], ["69", "LPT - Visita Prévia-BA"],
+  ["176", "Manutenção - Visita Prévia-BA"], ["234", "Oportunidades de Campo"],
+  ["192", "Poda Manut. - Visita Prévia-BA"], ["29", "UTD - Visita Prévia-BA"],
+  ["220", "Validação- Clientes - LPT"], ["70", "Visita Prévia (Concluídas)"],
+  ["153", "Vistoria Prévia - RS"],
 ];
 function montaChoices(select, opcoes) {
   const wrap = select.closest("div.choices");
@@ -282,7 +297,7 @@ test("tipo: escolhe a LPT e nao as outras 4 opcoes com 'Visita Prévia'", { skip
     await selecionarChoices(page, CFG, "finalidade", CFG.finalidade, CFG.finalidadeSearch);
     await esperarTiposCarregar(page, CFG);
     const t = await selecionarChoices(page, CFG, "tipoChecklist", CFG.tipoChecklist, CFG.tipoChecklistSearch);
-    assert.strictEqual(t.value, "69", "tem que ser a LPT (value 69), nao a UTD (7) nem a Validação- Clientes - LPT (73)");
+    assert.strictEqual(t.value, "69", "tem que ser a LPT (value 69), nao a UTD (29) nem a Validação- Clientes - LPT (220)");
     assert.strictEqual(t.text, "LPT - Visita Prévia-BA");
   } finally { await browser.close(); }
 });
